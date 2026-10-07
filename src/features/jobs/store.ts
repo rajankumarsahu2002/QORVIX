@@ -13,6 +13,7 @@ export interface Result { status?: 'Given' | 'Missed' | 'Overlap'; answerKey?: s
 export interface Stage {
   id: string; type: StageType; approxDate?: string;
   links: SyllabusLink[]; admit: Admit; result: Result;
+  customSyllabus?: string; // Skill Test free-text syllabus (not only tree links)
 }
 export interface Job {
   id: string; kind: 'job' | 'academic'; isTarget: boolean; parentId?: string;
@@ -29,6 +30,7 @@ interface JobState {
   removeJob: (id: string) => void;
   convertTarget: (id: string) => void;
   addStage: (jobId: string, type: StageType) => void;
+  removeStage: (jobId: string, stageId: string) => void;
   updateStage: (jobId: string, stageId: string, patch: Partial<Stage>) => void;
   seedIfEmpty: () => void;
 }
@@ -57,6 +59,11 @@ export const useJobs = create<JobState>()(
       addStage: (jobId, type) => set((s) => ({
         jobs: s.jobs.map((j) => (j.id === jobId
           ? { ...j, stages: [...j.stages, { id: uid('st'), type, links: [], admit: { downloaded: false }, result: {} }] }
+          : j)),
+      })),
+      removeStage: (jobId, stageId) => set((s) => ({
+        jobs: s.jobs.map((j) => (j.id === jobId
+          ? { ...j, stages: j.stages.filter((st) => st.id !== stageId) }
           : j)),
       })),
       updateStage: (jobId, stageId, patch) => set((s) => ({

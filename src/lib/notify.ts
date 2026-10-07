@@ -17,11 +17,22 @@ export function queueLocal(item: NotifyItem): void {
   try {
     const raw = localStorage.getItem(KEY);
     const arr = raw ? (JSON.parse(raw) as NotifyItem[]) : [];
-    arr.push(item);
-    localStorage.setItem(KEY, JSON.stringify(arr.slice(-60)));
+    const deduped = arr.filter((n) => n.id !== item.id);
+    deduped.push(item);
+    localStorage.setItem(KEY, JSON.stringify(deduped.slice(-60)));
   } catch {
     /* ignore */
   }
+}
+
+/** Queue only if the target date is in the future; offsetDays counts back from an ISO date. */
+export function scheduleBefore(dateIso: string | undefined, offsetDays: number, id: string, title: string, body: string): void {
+  if (!dateIso) return;
+  const t = new Date(dateIso).getTime();
+  if (Number.isNaN(t)) return;
+  const delayDays = (t - Date.now()) / 86400000 - offsetDays;
+  if (delayDays < -1) return; // already passed
+  queueLocal({ id, at: Date.now() + Math.max(0, delayDays) * 86400000, title, body });
 }
 
 export function dueNotifications(): NotifyItem[] {

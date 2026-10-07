@@ -9,15 +9,16 @@ export interface PlanItem {
   minutes: number; status: PlanStatus; summary?: string;
   correct?: number; incorrect?: number; mistakeNote?: string;
 }
-export interface Routine { id: string; title: string; time: string; repeat: 'daily' | 'weekly' | 'monthly'; }
+export type Repeat = 'daily' | 'weekly' | 'monthly' | 'days';
+export interface Routine { id: string; title: string; time: string; repeat: Repeat; days?: string[] }
 export interface PlanDay { date: string; items: PlanItem[]; edited: boolean; }
 interface TTState {
   days: PlanDay[]; routines: Routine[];
-  ensureToday: (suggest: { nodeId: string; title: string }[]) => void;
+  ensureToday: (suggest: { nodeId: string; title: string; minutes?: number; chosenSource?: PlanItem['chosenSource']; kind?: string }[]) => void;
   addItem: (date: string, item: Omit<PlanItem, 'id' | 'status'>) => void;
   updateItem: (date: string, id: string, patch: Partial<PlanItem>) => void;
   shiftRemaining: (date: string, fromId: string, extraMin: number) => void;
-  addRoutine: (title: string, time: string) => void;
+  addRoutine: (title: string, time: string, repeat?: Repeat, days?: string[]) => void;
   todayItems: () => PlanItem[];
 }
 
@@ -28,9 +29,9 @@ export const useTimetable = create<TTState>()(
       ensureToday: (suggest) => {
         const d = todayIso();
         if (get().days.some((x) => x.date === d)) return;
-        const items: PlanItem[] = suggest.slice(0, 6).map((s, i) => ({
+        const items: PlanItem[] = suggest.slice(0, 7).map((s) => ({
           id: uid('pi'), nodeId: s.nodeId, title: s.title,
-          chosenSource: 'both', minutes: [60, 50, 45, 40, 30, 30][i] ?? 30, status: 'todo',
+          chosenSource: s.chosenSource ?? 'both', minutes: Math.max(10, s.minutes ?? 45), status: 'todo',
         }));
         if (items.length === 0) {
           items.push({ id: uid('pi'), nodeId: '', title: 'Current Affairs (Daily)', chosenSource: 'individual', minutes: 30, status: 'todo' });
@@ -65,7 +66,7 @@ export const useTimetable = create<TTState>()(
           return { ...x, items, edited: true };
         }),
       })),
-      addRoutine: (title, time) => set((s) => ({ routines: [...s.routines, { id: uid('rt'), title, time, repeat: 'daily' }] })),
+      addRoutine: (title, time, repeat = 'daily', days) => set((s) => ({ routines: [...s.routines, { id: uid('rt'), title, time, repeat, days }] })),
       todayItems: () => get().days.find((x) => x.date === todayIso())?.items ?? [],
     }),
     { name: 'qorvix-timetable' }

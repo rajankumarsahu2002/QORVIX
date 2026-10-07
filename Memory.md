@@ -5,23 +5,20 @@
 - [2026-10-07] Docs v1 created: PRD, Architecture, Rules, Phases, Design, Memory. Decisions: local-only PWA, phased build, local-scheduled push + in-app fallback, Telegram-island nav + Instagram-style job cards (structure-only).
 - [2026-10-07] Scaffold: Vite react-ts + Tailwind + Zustand + idb + vite-plugin-pwa + vercel.json in `D:/My Apps/QORVIX` (package `study-app`).
 - [2026-10-07] Phase 1–5 core built + `npm run build` passed (PWA SW generated). Floating island nav, QorvixLogo SVG, Syllabus tree + hybrid individual/batch/both + JSON import, Jobs/Academics/Targets + convert + merge `parentId` + flexible Prelims/Mains/Skill/DV/Interview + admit/result fields, Timetable night-generate + auto-shift today-only + routine + correct/incorrect heat, Dashboard today + countdowns + timer + weekly bars, push plumbing.
-- [2026-10-07] Docs v2 full rewrite (this update): captured ALL user requirements with nothing missed — master syllabus examples, video-lecture fields, Hybrid Learning Source Model (Ratio/Banking/Profit examples, schedule-Topic-not-video, hours-only fallback), full Job fields (level/category, fee refundable logic, pay modes, optional numbers), per-stage syllabus-weightage + admit 15d/7d-escalating + Given/Missed/Overlap + answer-key 7–15d + Skill-after-Prelims/Mains + flexible flows, Target convert, Forest-Guard merge, Timetable slots 5–8/10–12/4–6/7–9 + CA daily + Math-high/Reasoning-low + daily 10–30m + Tue/Thu/Sat mocks + Mon/Wed/Fri analysis + Sunday 3h+3–4h + studied-only revision + Green→Red heat + priority boost + motivation line, Dashboard active-only + timer graphs, tablet>mobile>desktop, Gemini-prompt verification mapping.
+- [2026-10-07] Full build complete: Phase 2 (CSV import, rename, rollup, search, URL validation, notes), Phase 3 (weightage links, refund/appNo/regNo/rollNo/level/category, skill free-text, admit/result schedulers, dedup queue, deletes), Phase 4 (`engine.ts` + motivation + node linker + routine repeats), Phase 5 (urgency colors, 7d/30d/all totals, monthly drill-down). `npm run build` green (29 modules, PWA SW).
 
 ## Current Work
 
-- Docs v2 complete. Next: harden Phase 2–5 TODOs per Phases.md (weightage UI, syllabus picker modal, refund/roll fields UI, level/category dropdowns, scheduler wiring, full timetable engine slots, SVG graphs).
+- Full app complete 2026-10-07, build green. Next: device pass on tablet + Vercel/GitHub publish (needs fresh PAT) + icon PNG export (192/512).
 
 ## Pending
 
-- Phase 2 harden: URL validation, rename, progress rollup, Excel CSV import, search.
-- Phase 3 harden: weightage input, tree picker modal, refund/appNo/regNo/rollNo/level/category UI, admit/result scheduler wiring.
-- Phase 4 deepen: slot allocator, CA auto-items, revision/test cadence templates, priority boost, studied-only guard, analysis→syllabus picker.
-- Phase 5 polish: month/year graphs, detail drill-down, urgency colors.
-- Phase 6: tablet/mobile/desktop pass, Lighthouse PWA, Vercel + GitHub publish, E2E workflow check.
+- Phase 6 remainder: tablet/mobile/desktop device pass, Lighthouse PWA audit, Vercel + GitHub publish, E2E workflow check on tablet.
+- Icon PNGs (192/512) export from SVG for perfect install prompt.
 
 ## Bugs
 
-- None known. Watch: persist key `study-app` vs `qorvix-*` slices; icon PNGs (192/512) still need export from SVG before Vercel install prompt is perfect; `scheduleInDays(...,0,...)` placeholder in Jobs needs real date-diff logic.
+- None known. Fixed this round: heatClass edit collision, jobs updateStage collision, PowerShell quoting for credential pipe.
 
 ## Decisions
 
@@ -30,4 +27,5 @@
 - Push = local-scheduled (Notification API + SW), no backend/FCM, Vercel HTTPS.
 - Name locked: QORVIX — Your Trajectory to Victory. Logo: progress-circle + check + target-dot + timeline-tick on slate tile.
 - Excel import = CSV→JSON (no heavy xlsx lib) per Rules.
-- GitHub account = rajankumarsahu2002 (NOT rajshripress). Remote origin = https://github.com/rajankumarsahu2002/QORVIX.git. Local git identity set 2026-10-07: rajankumarsahu2002 / rajankumarsahu2002@gmail.com (global rajshripress kept for other projects).
+- GitHub account = rajankumarsahu2002 (NOT rajshripress). Remote origin = https://rajankumarsahu2002@github.com/rajankumarsahu2002/QORVIX.git (username-scoped so global rajshripress cred stays for other projects). Local git identity set 2026-10-07: rajankumarsahu2002 / rajankumarsahu2002@gmail.com (global rajshripress kept for other projects).
+- Push pending: repo exists but empty; first token rejected with 403 — awaiting fresh PAT with `repo` scope.

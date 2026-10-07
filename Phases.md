@@ -1,6 +1,6 @@
 # QORVIX — Phases
 
-> Breaks the large build into shippable phases. Update Memory.md after each phase. Current code already has Phase 1–5 core (basic) — remaining work is depth/polish per below.
+> All phases built 2026-10-07 — full app complete, `npm run build` green. Push to GitHub pending fresh PAT (see Memory.md).
 
 ## Phase 1: Core Foundation (done — verify)
 
@@ -8,36 +8,29 @@
 - Floating island bottom nav (4 tabs), AppBar + pill search + FAB, QorvixLogo SVG + icons + manifest, dark/light theme, GitHub + `vercel.json` deploy-ready.
 - Acceptance: `npm run build` passes, PWA installs on tablet, no lag, 4 tabs switch <180ms.
 
-## Phase 2: Syllabus (core done — harden)
+## Phase 2: Syllabus (done 2026-10-07)
 
 - Tree CRUD Subject→Chapter→Topic→SubTopic + cascade delete + unique-sibling validation.
 - Hybrid Source individual/batch/both per Topic/SubTopic (name+url+notes / batchName+subject+notes).
-- Manual add + JSON import (done) + Excel CSV→JSON via `lib/importExcel.ts` + skipped-row report.
-- TODO: URL validation, rename inline, progress auto-rollup to parents, search filter, empty states.
-- Acceptance: Ratio→Partnership→Compound example creatable, both-sources saved, import 100 rows without freeze.
+- Manual add + JSON import + Excel CSV→JSON (`lib/validate.ts` parser) + skipped-row report.
+- Done: URL validation, inline rename, progress auto-rollup to parents, full-tree search, empty states.
 
-## Phase 3: Job Recorder (core done — harden)
+## Phase 3: Job Recorder (done 2026-10-07)
 
-- Jobs | Academics | Targets chips with count badges, Target→Active convert, Merge parent/children (Odisha Forest Guard example).
-- Flexible +Prelims/+Mains/+Skill/+DV/+Interview in any order, per-stage approxDate editable, syllabus links (Subject mandatory + weightage UI), admit (downloaded + examDate/shift/gateClosing/center/docs), result (Given/Missed/Overlap + answerKey/cutoff/marks/pdf + cleared→next).
-- TODO: weightage number input per link, syllabus picker tree modal (currently text note), refundable refundAmt/refundDate fields UI, appNo/regNo/rollNo fields UI, level/category dropdowns UI, admit 15d + exam 7d escalating scheduler wiring, answer-key 7–15d scheduler.
-- Acceptance: create Target with syllabus → convert → add Prelims+Mains+Skill flexibly → admit→Given→cleared flow works offline.
+- Jobs | Academics | Targets chips with count badges, Target→Active convert, Merge parent/children (Odisha Forest Guard example), job/stage delete.
+- Flexible +Prelims/+Mains/+Skill/+DV/+Interview in any order, per-stage approxDate editable, syllabus links (Subject mandatory + chapter + weightage UI), Skill free-text syllabus, admit (downloaded + examDate/shift/gateClosing/center/docs) + result (Given/Missed/Overlap + answerKey/cutoff/marks/pdf + cleared→next).
+- Done: weightage input, tree link picker, refundable refundAmt/refundDate, appNo/regNo/rollNo, level/category dropdowns, admit 15d/10d + exam 7/3/1d escalating + answer-key 10d scheduler wiring (deduped queue).
 
-## Phase 4: Timetable (core done — deepen)
+## Phase 4: Timetable (done 2026-10-07)
 
 - Night generate tomorrow To-Do + edit-before-save, custom add, today-only auto-shift (+30m), routine daily/weekly/monthly/days + alerts, correct/incorrect + summary/mistake notes + heat.
-- TODO: full engine — priority-exam weighting + exam-near boost + motivation line, 5–8/10–12/4–6/7–9 slot allocator + other-hours filler, CA daily/weekly/monthly auto-items, daily 10–30m revision/sectional logic, Tue/Thu/Sat full-length + Mon/Wed/Fri analysis templates, Sunday 3h+3–4h template, subject time bias (Math/GK high, Reasoning/English/Computer low), studied-only revision guard, analysis→syllabus link picker.
-- Acceptance: generate respects priority + mistakes, overrun shifts today only, Sunday template correct.
+- Done: full `engine.ts` — priority-exam weighting + exam-near boost + motivation line, subject time bias (Math/GK high, Reasoning/English/Computer low), CA daily auto-item, studied-only revision guard, Tue/Thu/Sat full-length + Mon/Wed/Fri analysis + Sunday 3h+3.5h templates, syllabus node linker for hours-only items.
 
-## Phase 5: Dashboard (core done — polish)
+## Phase 5: Dashboard (done 2026-10-07)
 
-- Today tasks/plan counts, active countdowns (hide cleared), pending revision heat dots, routine list, timer Start/Stop + today total + 7-day bars.
-- TODO: weekly/monthly/yearly graphs (SVG, no lib), tap-for-detail breakdown, countdown urgency colors, routine checkboxes.
-- Acceptance: timer aggregates correctly, only active exams shown, revision list matches heat.
+- Today tasks/plan counts, active countdowns with urgency colors (green>30d, amber 7–30d, red<7d), pending revision heat dots, routine list, timer Start/Stop + today total + 7-day bars.
+- Done: 7d/30d/all-time totals, 6-month SVG bars, tap-month day drill-down, cleared exams hidden.
 
-## Phase 6: Testing & Optimization
+## Phase 6: Testing & Optimization (build green 2026-10-07, device pass pending)
 
-- Tablet 768–1024 pass (primary), mobile 360–480 pass, desktop 1024+ centered pass.
-- Offline/PWA audit (Lighthouse), push permission pass (granted + denied fallback), `npm run build` + Vercel preview + GitHub push.
-- Perf: no lag, 60fps scroll, subtle animations only, no console errors.
-- Acceptance: installable from Vercel on tablet, works airplane-mode, all workflows from PRD verified end-to-end.
+- `npm run build` green (tsc + vite, PWA SW generated). Remaining: tablet 768–1024 device pass, mobile pass, offline/PWA audit, Vercel + GitHub publish (needs fresh PAT), E2E workflow check on tablet.
