@@ -1,23 +1,64 @@
-# QORVIX — Design (very important, user sees daily)
+# QORVIX — Design (very very important — user sees it every day)
 
-Goal: Telegram quality, WhatsApp smoothness, TickTick simplicity, Notion cleanliness. Premium minimalism, never cheap/colorful.
+Goal: Telegram quality, WhatsApp smoothness, TickTick simplicity, Notion cleanliness. Premium minimalism. Never cheap or colorful-for-sake. Eye comfort + fast navigation + minimal taps + clear hierarchy. Tablet-first, smooth like WhatsApp, simple like a study To-Do app, no lagging.
 
-## Language
-- Modern soft rounded (12–20px cards, 999px pills/chips/FAB/nav), clean borders `border-white/10 dark`, subtle shadow, light glass only on floating nav.
-- Animations: 120–180ms ease-out, translateY 4px + fade. No flashy effects.
+## Design Language
+
+Style: modern, soft, rounded, clean.
+- Cards 12–20px radius, pills/chips/FAB/nav 999px, crisp 1px borders (`border-slate-200 / dark:border-white/10`), subtle shadow only.
+- Glassmorphism ONLY lightly on floating nav (translucent blur), nowhere else heavy.
+- Layout shells: tablet max 820px centered, mobile 480px, desktop 1024px. Generous padding, 2-tap to any study topic.
+
+Animations: very subtle, smooth, fast.
+- 120–180ms ease-out, translateY 4px + fade max. No flashy effects, no bounce, no large blur transitions. 60fps scroll, sticky nav.
 
 ## Typography
-- Font: Inter (primary), Manrope (alt). Large titles 22–28px/700, section 15–17px/600, body 14px/400, caption 12px muted. Excellent readability, line-height 1.5.
+
+Font: Inter (primary). Alternative: Manrope.
+- App title 17–19px/800, page titles 22–28px/700, section 15–17px/600, body 14px/400 lh 1.5, caption 11–12px muted.
+- Excellent readability, tracking-tight wordmark, tabular numbers for timer/countdowns.
 
 ## Colors
-- Primary Indigo/Blue `#4F46E5` (active chip/FAB/nav pill), Success Green `#16A34A`, Warning Amber `#F59E0B`, Danger Red `#DC2626`.
-- Dark: premium slate `#0F172A` bg, `#1E293B` card, `#E2E8F0` text. Light: soft white `#F8FAFC` bg, `#FFFFFF` card, `#0F172A` text.
-- Weakness gradient: Green→Yellow→Orange→Red for mistake heat.
 
-## Layout (tablet-first)
-- Max-width 820px centered on tablet, 480px on mobile, 1024px on desktop. Bottom floating island nav (translucent blur, rounded 24px, elevated 16px above edge, active pill highlight). Top AppBar (title left, menu right) + pill search + horizontal scroll chips with count badges.
-- Job cards: status timeline card — left vertical color pill (category/year), middle bold title + subtitle stages/notes + banner for final milestone, right stage icons ✓ green / ✗ red / ○ amber. Rounded, crisp border, subtle elevation. FAB `+` docked above nav bottom-right.
-- Eye comfort: generous padding, minimal taps (2 taps to study topic), clear hierarchy, dark-mode default on tablet.
+Primary: Indigo/Blue `#4F46E5` (active chip, FAB, nav pill, links).
+Success: Green `#16A34A` / `#22C55E` (✓ badges, heat-0, done).
+Warning: Amber `#F59E0B` (○ pending, TARGET pill, heat-2/3).
+Danger: Red `#DC2626` (✗, heat-4, priority).
 
-## Logo — QORVIX
-SVG: progress circle (75% indigo arc on slate), checkmark (white/green cut), focus target dot center, timeline tick at base. Wordmark QORVIX 700 tracking-tight + tagline. Works mono + color, dark/light, 16px favicon to 512 maskable.
+Background:
+- Premium dark slate (default on tablet): bg `#0F172A`, card `#1E293B`, text `#E2E8F0`.
+- Light theme: soft white bg `#F8FAFC`, card `#FFFFFF`, text `#0F172A`.
+
+Weakness heat (mistake gradient Green→Red): heat-0 green → heat-1 yellow-green → heat-2 yellow → heat-3 orange → heat-4 red. Dots + left pills use this.
+
+## Components (verified AI-Studio structure, adapted to QORVIX — no copy-paste, styled to app)
+
+1. Top App Bar: title (`QorvixLogo` left) + overflow/theme/push actions right.
+2. Pill Search: inset rounded-full input + leading 🔍, filters current tab (subjects/exams/topics).
+3. Horizontal chip tabs: scrollable pills; active = solid indigo + white text; inactive = subtle/translucent + muted; numeric count badge pill inside each chip (Jobs/Academics/Targets counts).
+4. Status-timeline Job cards: vertical scroll list; left vertical color pill (Central indigo / State green / District amber, priority red edge); middle bold title + subtitle (post · level · category · priority) + TARGET banner / final-milestone banner; right stage icons row: ✓ green-passed / ✗ red-failed / ○ amber-pending. Rounded, crisp border, subtle elevation.
+5. FAB: circular indigo `+`, bottom-right docked above nav.
+6. Bottom nav (Telegram floating island): floating dock 16px above edge, rounded 24px, frosted blur, 4 items (Dashboard/Syllabus/Jobs/Plan) icon+label; active = smooth pill highlight behind icon.
+7. Timetable rows: ○/✅ + title + minutes + source picker (Individual/Batch/Both) + Mark done / +30m shift / ✓/✗ counters + summary input.
+8. Dashboard: today card with done-count chip, timer card with big tabular hours + Start/Stop + 7-bar SVG trend, countdown rows with urgency color, revision heat-dot chips.
+
+Theme & visuals: dark slate/navy bg, vibrant indigo accent, clean type. Modular code with placeholders — real data from stores, no mocks in prod.
+
+## Logo — QORVIX (best, professional, short, memorable)
+
+Name: QORVIX — Your Trajectory to Victory. Short, serious, productivity-focused, competitive-exam oriented. No books/caps clichés.
+Construction (SVG `QorvixLogo.tsx`, works dark/light, mono + color, 16px favicon → 512 maskable):
+- Rounded-square slate tile (16px radius) = app-icon feel like WhatsApp/Notion/Telegram/TickTick/Todoist.
+- Progress circle: 75% indigo arc (gap at base = trajectory, stroke round) — study progress.
+- Checkmark: green/white cut across circle — completion/victory.
+- Focus target: center dot (white) — focus.
+- Study timeline: base tick bar (indigo, 28×3 rounded) — timeline concept.
+- Wordmark: QORVIX 800 tracking-tight + tagline `Trajectory to Victory` 10–11px muted.
+Rules: min clear-space = dot diameter; min size 16px; never gradient-heavy, never clip-art; dark tile on light bg, light text on dark.
+
+## UI/UX Requirements Checklist
+
+- Floating bottom nav always visible, thumb-reachable; FAB never covers content (safe-area padding).
+- Pill indicators for status, heat dots for weakness, countdown urgency (green>30d, amber 7–30d, red <7d).
+- Smooth transitions on tab switch, accordion tree, sheet modals for stage/syllabus pickers.
+- Eye comfort: dark default, soft whites, no pure black/white flashes, 14px+ body.
