@@ -7,7 +7,9 @@
 html, body { font-family: Inter, Manrope, system-ui, sans-serif; }
 body { @apply bg-[#F8FAFC] text-slate-900 dark:bg-[#0F172A] dark:text-slate-100; }
 
-.app-shell { @apply mx-auto w-full max-w-[820px] px-4 pb-32 pt-4 tablet:px-6; }
+.app-shell { @apply mx-auto w-full max-w-[820px] px-4 pb-32 pt-4 md:px-6; }
+@media (min-width: 1024px) { .app-shell { max-width: 1024px; } }
+:focus-visible { outline: 2px solid #4F46E5; outline-offset: 2px; }
 .card { @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1E293B]; }
 .chip { @apply shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-150; }
 .chip-active { @apply bg-[#4F46E5] text-white shadow; }
@@ -24,4 +26,3 @@ body { @apply bg-[#F8FAFC] text-slate-900 dark:bg-[#0F172A] dark:text-slate-100;
 .heat-0 { @apply bg-green-600; } .heat-1 { @apply bg-lime-500; } .heat-2 { @apply bg-yellow-500; }
 .heat-3 { @apply bg-orange-500; } .heat-4 { @apply bg-red-600; }
 *::-webkit-scrollbar { height: 6px; width: 6px; } *::-webkit-scrollbar-thumb { @apply rounded-full bg-slate-400/40; }
-@media (min-width: 768px) { .tablet\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } }

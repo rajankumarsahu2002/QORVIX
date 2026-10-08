@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { uid } from '../../lib/dates';
+import { idbStorage } from '../../lib/idb';
 import { parseCsv } from '../../lib/validate';
 
 export type NodeKind = 'subject' | 'chapter' | 'topic' | 'subtopic';
@@ -9,10 +10,12 @@ export interface LearningSource {
   mode: SourceMode;
   indName?: string; indUrl?: string; indNotes?: string;
   batchName?: string; batchSubject?: string; batchNotes?: string;
+  batchId?: string; lectureId?: string; // link into reusable BatchCourse (§17)
 }
 export interface SylNode {
   id: string; kind: NodeKind; title: string; parentId?: string;
   source?: LearningSource; progress: number; mistakes: number; corrects: number;
+  lastStudiedAt?: string; // YYYY-MM-DD, for staleness-aware revision (§57)
 }
 interface SylState {
   nodes: SylNode[];
@@ -21,10 +24,11 @@ interface SylState {
   removeNode: (id: string) => void;
   setSource: (id: string, source: LearningSource) => void;
   setProgress: (id: string, progress: number) => void;
+  touchStudied: (id: string) => void;
+  completeNode: (id: string) => void; // Done in timetable → Completed (§79)
   logResult: (id: string, correct: boolean) => void;
   importJson: (text: string) => { added: number; skipped: number };
   importCsv: (text: string) => { added: number; skipped: number };
-  seedIfEmpty: () => void;
 }
 
 /** Rolled-up progress: leaf returns own progress, parent returns avg of children. */
@@ -103,6 +107,14 @@ export const useSyllabus = create<SylState>()(
       }),
       setSource: (id, source) => set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? { ...n, source } : n)) })),
       setProgress: (id, progress) => set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? { ...n, progress: Math.max(0, Math.min(100, progress)) } : n)) })),
+      touchStudied: (id) => {
+        const d = new Date().toISOString().slice(0, 10);
+        set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? { ...n, lastStudiedAt: d } : n)) }));
+      },
+      completeNode: (id) => {
+        const d = new Date().toISOString().slice(0, 10);
+        set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? { ...n, progress: 100, lastStudiedAt: d } : n)) }));
+      },
       logResult: (id, correct) => set((s) => ({
         nodes: s.nodes.map((n) => (n.id === id ? { ...n, mistakes: n.mistakes + (correct ? 0 : 1), corrects: n.corrects + (correct ? 1 : 0) } : n)),
       })),
@@ -166,17 +178,7 @@ export const useSyllabus = create<SylState>()(
         } catch { counters.skipped += 1; }
         return counters;
       },
-      seedIfEmpty: () => {
-        if (get().nodes.length > 0) return;
-        const qa: SylNode = { id: uid('subject'), kind: 'subject', title: 'Quantitative Aptitude', progress: 0, mistakes: 0, corrects: 0 };
-        const re: SylNode = { id: uid('subject'), kind: 'subject', title: 'Reasoning', progress: 0, mistakes: 0, corrects: 0 };
-        const gk: SylNode = { id: uid('subject'), kind: 'subject', title: 'General Knowledge', progress: 0, mistakes: 0, corrects: 0 };
-        const ca: SylNode = { id: uid('subject'), kind: 'subject', title: 'Current Affairs', progress: 0, mistakes: 0, corrects: 0 };
-        const ratio: SylNode = { id: uid('chapter'), kind: 'chapter', title: 'Ratio', parentId: qa.id, progress: 0, mistakes: 0, corrects: 0 };
-        const part: SylNode = { id: uid('topic'), kind: 'topic', title: 'Partnership', parentId: ratio.id, progress: 0, mistakes: 0, corrects: 0, source: { mode: 'both', indName: 'Ratio Lecture', batchName: 'SSC Batch' } };
-        set({ nodes: [qa, re, gk, ca, ratio, part] });
-      },
     }),
-    { name: 'qorvix-syllabus' }
+    { name: 'qorvix-syllabus', storage: createJSONStorage(() => idbStorage) }
   )
 );

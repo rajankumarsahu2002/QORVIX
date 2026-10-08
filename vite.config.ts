@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'qorvix-icon.svg'],
+      includeAssets: ['favicon.svg', 'qorvix-icon.svg', 'qorvix-192.png', 'qorvix-512.png', 'qorvix-maskable-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'QORVIX — Your Trajectory to Victory',
         short_name: 'QORVIX',
@@ -18,8 +18,9 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/',
         icons: [
-          { src: 'qorvix-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'qorvix-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: 'qorvix-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'qorvix-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'qorvix-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

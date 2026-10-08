@@ -9,7 +9,7 @@ export default function QorvixLogo({ size = 40 }: { size?: number }) {
         <rect x="18" y="50" width="28" height="3" rx="1.5" fill="#4F46E5" opacity=".9" />
       </svg>
       <span className="leading-none">
-        <span className="block text-[17px] font-800 font-extrabold tracking-tight">QORVIX</span>
+        <span className="block text-[17px] font-extrabold tracking-tight">QORVIX</span>
         <span className="block text-[10px] font-medium text-slate-500 dark:text-slate-400">Trajectory to Victory</span>
       </span>
     </span>

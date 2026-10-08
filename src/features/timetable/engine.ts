@@ -1,5 +1,6 @@
 import { daysUntil } from '../../lib/dates';
 import type { SylNode } from '../syllabus/store';
+import { isStudied, revisionScore } from '../syllabus/logic';
 import type { Job } from '../jobs/store';
 
 export type SuggestKind = 'study' | 'revision' | 'mock' | 'analysis' | 'ca';
@@ -36,23 +37,40 @@ function baseMinutes(subj: string): number {
   return 45;
 }
 
-/** Night-planning engine: active + priority + dates + progress + mistakes → tomorrow To-Do. */
+function isLastDayOfMonth(d: Date): boolean {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() === d.getDate();
+}
+
+/** Night-planning engine: active + target exams + priority + dates + progress + mistakes → tomorrow To-Do. */
 export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult {
   const active = jobs.filter((j) => !j.isTarget);
+  const targets = jobs.filter((j) => j.isTarget);
   const prioritySubs = new Set<string>();
+  // Active stage links (priority exams) + target-exam syllabus both steer the plan (§26/§40).
+  for (const j of active) {
+    if (j.priority < 4) continue;
+    for (const st of j.stages) for (const l of st.links) {
+      prioritySubs.add(l.subjectId);
+      for (const c of l.chapterIds) prioritySubs.add(c);
+    }
+  }
+  for (const t of targets) {
+    for (const l of t.targetLinks) {
+      prioritySubs.add(l.subjectId);
+      for (const c of l.chapterIds) prioritySubs.add(c);
+    }
+  }
   let nearestName = '';
   let nearestDays = 9999;
   for (const j of active) {
     for (const st of j.stages) {
-      for (const l of st.links) {
-        if (j.priority >= 4) prioritySubs.add(l.subjectId);
-        if (st.approxDate) {
-          const d = daysUntil(st.approxDate);
-          if (d >= 0 && d < nearestDays) {
-            nearestDays = d;
-            nearestName = j.examName;
-          }
-        }
+      if (st.result.cleared) continue;
+      const iso = st.admit.examDate || st.approxDate;
+      if (!iso) continue;
+      const d = daysUntil(iso);
+      if (d >= 0 && d < nearestDays) {
+        nearestDays = d;
+        nearestName = `${j.examName} ${st.type}`;
       }
     }
   }
@@ -60,7 +78,7 @@ export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult
 
   const items: Suggestion[] = [];
   const push = (s: Suggestion): void => {
-    if (items.length < 7) items.push(s);
+    if (items.length < 8) items.push(s);
   };
 
   // 1. Current Affairs daily (uses real CA node when present, else generic).
@@ -75,16 +93,16 @@ export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult
     chosenSource: 'individual',
   });
 
-  // 2. Revision due — studied-only guard (progress>0 or attempted), mistake-first.
+  // 2. Revision due — studied-only guard (§55), mistake-first + staleness (§57).
   const revision = nodes
-    .filter((n) => (n.kind === 'topic' || n.kind === 'subtopic') && (n.progress > 0 || n.corrects > 0) && n.mistakes > n.corrects)
-    .sort((a, b) => b.mistakes - b.corrects - (a.mistakes - a.corrects))
+    .filter((n) => (n.kind === 'topic' || n.kind === 'subtopic' || n.kind === 'chapter') && isStudied(n) && n.mistakes > n.corrects)
+    .sort((a, b) => revisionScore(b, nearBoost) - revisionScore(a, nearBoost))
     .slice(0, 2);
   for (const r of revision) {
     push({ nodeId: r.id, title: `Revision — ${r.title} (10–30m)`, minutes: 25, kind: 'revision', chosenSource: 'both' });
   }
 
-  // 3. Weekday test cadence.
+  // 3. Weekday test cadence + CA weekly/monthly (§44/§52).
   const dow = date.getDay(); // 0 Sun … 6 Sat
   const topExam = active.slice().sort((a, b) => b.priority - a.priority)[0]?.examName ?? 'your exam';
   if (dow === 0) {
@@ -94,6 +112,12 @@ export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult
     push({ nodeId: '', title: `Full-length mock — ${topExam}`, minutes: 120, kind: 'mock', chosenSource: 'individual' });
   } else if (dow === 1 || dow === 3 || dow === 5) {
     push({ nodeId: '', title: 'Mock analysis → link mistakes to syllabus', minutes: 60, kind: 'analysis', chosenSource: 'individual' });
+  }
+  if (dow === 5) {
+    push({ nodeId: caNode?.id ?? '', title: 'CA weekly revision (this week\'s affairs)', minutes: 20, kind: 'ca', chosenSource: 'individual' });
+  }
+  if (isLastDayOfMonth(date)) {
+    push({ nodeId: caNode?.id ?? '', title: 'CA monthly revision (this month\'s affairs)', minutes: 45, kind: 'ca', chosenSource: 'individual' });
   }
 
   // 4. Study topics: uncompleted, priority-first, mistake-first, subject time bias.
@@ -108,7 +132,7 @@ export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult
       return a.progress - b.progress;
     });
   for (const n of cands) {
-    if (items.length >= 7) break;
+    if (items.length >= 8) break;
     if (items.some((i) => i.nodeId === n.id)) continue;
     const subj = subjectTitle(nodes, n.id);
     const prio = prioritySubs.has(n.id) || prioritySubs.has(subjectIdOf(nodes, n.id));
@@ -116,10 +140,12 @@ export function buildPlan(nodes: SylNode[], jobs: Job[], date: Date): PlanResult
     push({ nodeId: n.id, title: n.title, minutes, kind: 'study', chosenSource: n.source?.mode ?? 'both' });
   }
 
-  // 5. Motivation when a priority exam nears.
+  // 5. Priority motivation tiers (§41): gentle at 30d, stronger at 7d.
   let motivation: string | undefined;
-  if (nearestDays <= 30 && nearestName) {
+  if (nearestDays <= 7 && nearestName) {
     motivation = `🔥 ${nearestName} in ${nearestDays}d — read extra 1–2 hr daily to clear it. Priority revision first.`;
+  } else if (nearestDays <= 30 && nearestName) {
+    motivation = `Consider adding 30 minutes of focused study for ${nearestName} (${nearestDays}d left).`;
   }
 
   return { items, motivation };

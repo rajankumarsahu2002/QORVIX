@@ -37,10 +37,12 @@ Weakness heat (mistake gradient Green→Red): heat-0 green → heat-1 yellow-gre
 2. Pill Search: inset rounded-full input + leading 🔍, filters current tab (subjects/exams/topics).
 3. Horizontal chip tabs: scrollable pills; active = solid indigo + white text; inactive = subtle/translucent + muted; numeric count badge pill inside each chip (Jobs/Academics/Targets counts).
 4. Status-timeline Job cards: vertical scroll list; left vertical color pill (Central indigo / State green / District amber, priority red edge); middle bold title + subtitle (post · level · category · priority) + TARGET banner / final-milestone banner; right stage icons row: ✓ green-passed / ✗ red-failed / ○ amber-pending. Rounded, crisp border, subtle elevation.
-5. FAB: circular indigo `+`, bottom-right docked above nav.
-6. Bottom nav (Telegram floating island): floating dock 16px above edge, rounded 24px, frosted blur, 4 items (Dashboard/Syllabus/Jobs/Plan) icon+label; active = smooth pill highlight behind icon.
-7. Timetable rows: ○/✅ + title + minutes + source picker (Individual/Batch/Both) + Mark done / +30m shift / ✓/✗ counters + summary input.
-8. Dashboard: today card with done-count chip, timer card with big tabular hours + Start/Stop + 7-bar SVG trend, countdown rows with urgency color, revision heat-dot chips.
+5. FAB: circular indigo `+`, bottom-right docked above nav; contextual per tab (Syllabus→add box, Jobs→new exam, Plan→custom topic); hidden on Dashboard where it adds nothing.
+6. Bottom nav (Telegram floating island): floating dock 16px above edge, rounded 24px, frosted blur, 4 items (Dashboard/Syllabus/Jobs/Plan) icon+label; active = smooth pill highlight behind icon. No avatar item.
+7. Timetable rows: title + minutes + one big Done button + linked-timer ▶ + "Change" details (time/actual/order/remove/source/mistakes) + one-line learning summary.
+8. Dashboard: today card with done-count chip, timer card with big tabular hours + Start/Stop + running-task line + today's sessions + 7-bar trend + 7d/30d/all chips + monthly drill-down, countdown rows with urgency color, revision heat-dot chips.
+9. Stage stepper: ① Date+Study → ② Admit → ③ Result with ✓ dots; auto-opens the first unfinished step; plain words throughout ("Exam around", "I gave it ✓", "What happened?").
+10. Status pills: Not started / In progress / Completed next to rollup %; parent group stripe (amber) + Show/Hide for merged applications.
 
 Theme & visuals: dark slate/navy bg, vibrant indigo accent, clean type. Modular code with placeholders — real data from stores, no mocks in prod.
 
@@ -55,6 +57,7 @@ Construction (SVG `QorvixLogo.tsx`, works dark/light, mono + color, 16px favicon
 - Study timeline: base tick bar (indigo, 28×3 rounded) — timeline concept.
 - Wordmark: QORVIX 800 tracking-tight + tagline `Trajectory to Victory` 10–11px muted.
 Rules: min clear-space = dot diameter; min size 16px; never gradient-heavy, never clip-art; dark tile on light bg, light text on dark.
+PNGs are generated from this exact SVG by `scripts/gen-icons.mjs` (zero-dep Node rasterizer): 192/512 `any`, 512 `maskable` (safe-zone zoom), 180 apple-touch.
 
 ## UI/UX Requirements Checklist
 
